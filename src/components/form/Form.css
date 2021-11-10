@@ -1,0 +1,10 @@
+.form {
+  margin-top: 20px;
+  max-width: 1000px;
+}
+
+.personInfo {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
