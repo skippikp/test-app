@@ -1,14 +1,16 @@
 import React from 'react';
 import TestApi from '../../services/test-api';
 import PersonInfo from '../person-info/PersonInfo';
-import { Stack, TextField, Autocomplete } from '@mui/material';
+import { Stack } from '@mui/material';
+import SelectComponent from '../SelectComponent/SelectComponent';
 import {
 	setHouses,
 	setFlats,
 	setSelectedFlat,
 	setClientList,
+	setAllStreets,
 } from '../../actions/actions';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { connect } from 'react-redux';
 import './Form.css';
 
@@ -24,16 +26,19 @@ const Form = ({
 	setSelectedFlat,
 	clientList,
 	setClientList,
+	setAllStreets,
 }) => {
 	const [street, setStreet] = useState('');
 	const [house, setHouse] = useState('');
+	const [flat, setFlat] = useState('');
 
-	useEffect(() => {
-		findHouses(street);
-		findFlats(house);
-	}, [street, house]);
+	const loadStreets = () => {
+		test.getStreets().then((data) => {
+			setAllStreets(data);
+		});
+	};
 
-	const findHouses = (streetName) => {
+	const loadHouses = (streetName) => {
 		const street = streets.find((item) => item.name === streetName);
 		if (street) {
 			test.getHouses(street.id).then((data) => {
@@ -52,98 +57,93 @@ const Form = ({
 		}
 	};
 
-	const findFlats = (houseName) => {
-		const house = houses.find((item) => item.name === houseName);
-		if (house) {
-			test.getFlats(house.id).then((data) => {
+	const loadFlats = (houseName) => {
+		const selectedHouse = houses.find((item) => item.name === houseName);
+
+		if (selectedHouse) {
+			test.getFlats(selectedHouse.id).then((data) => {
 				setFlats(data);
 			});
 		}
 	};
 
-	const selectHouse = (event) => {
-		setHouse(event.target.value);
+	const selectHouse = (house) => {
+		setHouse(house?.label);
+		setSelectedFlat(null);
+		setFlat('');
+		setClientList([]);
 	};
 
-	const selectStreet = (event) => {
-		setStreet(event.target.value);
+	const selectStreet = (street) => {
+		setStreet(street?.label);
+		setSelectedFlat(null);
+		setFlat('');
+		setHouse('');
+		setClientList([]);
 	};
 
-	const selectFlat = (event) => {
-		const flat = flats?.find((item) => item.name === event.target.value);
-		setSelectedFlat(flat);
-		showAllPeople(flat?.id);
-		if (!flat) {
+	const selectFlat = (flat) => {
+		const selectedFlat = flats?.find((item) => item.name === flat.label);
+		setSelectedFlat(selectedFlat);
+		setFlat(flat.label);
+		showAllPeople(selectedFlat?.id);
+		if (!selectedFlat) {
 			setClientList([]);
 		}
 	};
 
-	const searchOption = streets.map((item) => {
+	const streetsSearchOptions = streets.map((item) => {
 		return { label: item.name, id: item.id };
 	});
 
-	const loading = streets.length === 0;
+	const housesSearchOptions = houses.map((item) => {
+		return { label: item.name, id: item.id };
+	});
+
+	const flatsSearchOptions = flats.map((item) => {
+		return { label: item.name, typeName: item.typeName, id: item.id };
+	});
+
+	const streetsLoadingIndicator = streets.length === 0;
+	const housesLoadingIndicator = houses.length === 0;
+	const flatsLoadingIndicator = flats.length === 0;
+
+	const flatsRenderOptions = (props, options) => {
+		if (options.typeName === 'Квартира') {
+			return (
+				<li {...props} key={options.id}>
+					{options.label}
+				</li>
+			);
+		}
+	};
 
 	return (
 		<div className="form">
 			<Stack direction="row" spacing={2}>
-				<Autocomplete
-					disablePortal
-					id="combo-box"
-					isOptionEqualToValue={(option, value) => option.label === value.label}
-					loading={loading}
-					options={searchOption}
-					sx={{ width: 300 }}
-					renderOption={(props, options) => {
-						return (
-							<li {...props} key={options.id}>
-								{options.label}
-							</li>
-						);
-					}}
-					renderInput={(params) => (
-						<TextField {...params} onSelect={selectStreet} label="Улица" />
-					)}
+				<SelectComponent
+					onOpen={loadStreets}
+					loading={streetsLoadingIndicator}
+					options={streetsSearchOptions}
+					onSelect={selectStreet}
+					label={'Улица'}
 				/>
-				<Autocomplete
-					disablePortal
-					id="combo-box"
-					isOptionEqualToValue={(option, value) => option.label === value.label}
-					options={houses.map((item) => {
-						return { label: item.name, id: item.id };
-					})}
-					sx={{ width: 300 }}
-					renderOption={(props, options) => {
-						return (
-							<li {...props} key={options.id}>
-								{options.label}
-							</li>
-						);
-					}}
-					renderInput={(params) => (
-						<TextField {...params} onSelect={selectHouse} label="Дом" />
-					)}
+				<SelectComponent
+					onOpen={() => loadHouses(street)}
+					loading={housesLoadingIndicator}
+					options={housesSearchOptions}
+					onSelect={selectHouse}
+					label={'Дом'}
+					value={house}
 				/>
-				<Autocomplete
-					disablePortal
-					id="combo-box"
-					isOptionEqualToValue={(option, value) => option.label === value.label}
-					options={flats.map((item) => {
-						return { label: item.name, typeName: item.typeName, id: item.id };
-					})}
-					sx={{ width: 300 }}
-					renderOption={(props, options) => {
-						if (options.typeName === 'Квартира') {
-							return (
-								<li {...props} key={options.id}>
-									{options.label}
-								</li>
-							);
-						}
-					}}
-					renderInput={(params) => (
-						<TextField {...params} onSelect={selectFlat} label="Квартира" />
-					)}
+				<SelectComponent
+					onOpen={() => loadFlats(house)}
+					loading={flatsLoadingIndicator}
+					options={flatsSearchOptions}
+					onSelect={selectFlat}
+					renderOptions={flatsRenderOptions}
+					label={'Квартира'}
+					value={flat}
 				/>
 			</Stack>
 			{selectedFlat ? (
@@ -189,6 +189,7 @@ const mapDispatchToProps = {
 	setFlats,
 	setSelectedFlat,
 	setClientList,
+	setAllStreets,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Form);

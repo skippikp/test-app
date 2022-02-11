@@ -108,6 +108,7 @@ const AddPersonModal = ({ selectedFlat, setClientList }) => {
 					<TextField
 						id="outlined-basic"
 						label="Телефон"
+						type="tel"
 						required
 						variant="outlined"
 						sx={{ m: 1, width: '25ch' }}
@@ -125,10 +126,7 @@ const AddPersonModal = ({ selectedFlat, setClientList }) => {
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={handleClose}>Cancel</Button>
-					<Button
-						disabled={person.Phone ? false : true}
-						onClick={() => submitPerson(person)}
-					>
+					<Button disabled={!person.Phone} onClick={() => submitPerson(person)}>
 						Добавить
 					</Button>
 				</DialogActions>

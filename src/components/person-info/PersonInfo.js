@@ -111,13 +111,15 @@ const PersonInfo = ({
 				<DialogContent>
 					<TextField
 						id="outlined-name"
-						label="Name"
+						label="Имя"
+						sx={{ m: 1, width: '25ch' }}
 						onChange={handleChangeName}
 						value={person.Name}
 					/>
 					<TextField
 						id="outlined-basic"
 						label="Email"
+						sx={{ m: 1, width: '25ch' }}
 						variant="outlined"
 						value={person.Email}
 						onChange={handleChangeEmail}
