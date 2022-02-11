@@ -9,8 +9,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import { bindActionCreators } from 'redux';
-import * as actions from '../../actions/actions';
+import { setClientList } from '../../actions/actions';
 import TestApi from '../../services/test-api';
 import './PersonInfo.css';
 import { connect } from 'react-redux';
@@ -133,17 +132,14 @@ const PersonInfo = ({
 	);
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = ({ selectedFlat }) => {
 	return {
-		selectedFlat: state.selectedFlat,
+		selectedFlat,
 	};
 };
 
-const mapDispatchToProps = (dispatch) => {
-	const { setClientList } = bindActionCreators(actions, dispatch);
-	return {
-		setClientList: (clientList) => setClientList(clientList),
-	};
+const mapDispatchToProps = {
+	setClientList,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(PersonInfo);

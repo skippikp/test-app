@@ -2,8 +2,7 @@ import React, { useEffect } from 'react';
 import TestApi from '../../services/test-api';
 import { connect } from 'react-redux';
 import Form from '../form/Form';
-import { bindActionCreators } from 'redux';
-import * as actions from '../../actions/actions';
+import { setStreets } from '../../actions/actions';
 import './App.css';
 import AddPersonModal from '../add-person-modal/AddPersonModal';
 
@@ -28,19 +27,16 @@ const App = ({ setStreets }) => {
 	);
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = ({ streets, houses, flats }) => {
 	return {
-		streets: state.streets,
-		houses: state.houses,
-		flats: state.flats,
+		streets,
+		houses,
+		flats,
 	};
 };
 
-const mapDispatchToProps = (dispatch) => {
-	const { setStreets } = bindActionCreators(actions, dispatch);
-	return {
-		setStreets: (streets) => setStreets(streets),
-	};
+const mapDispatchToProps = {
+	setStreets,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

@@ -53,7 +53,7 @@ export default class TestApi {
 			data: { AddressId: adressId, ClientId: personId },
 			url: 'https://dispex.org/api/vtest/HousingStock/bind_client',
 		};
-		const res = await axios(options).then((res) => console.log(res));
+		const res = await axios(options);
 		return res;
 	};
 
