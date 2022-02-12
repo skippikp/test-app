@@ -9,10 +9,10 @@ import {
 const setAllStreets = (streets) => {
 	return { type: SET_STREETS, streets: streets };
 };
-const setHouses = (houses) => {
+const setAllHouses = (houses) => {
 	return { type: SET_HOUSES, houses: houses };
 };
-const setFlats = (flats) => {
+const setAllFlats = (flats) => {
 	return { type: SET_FLATS, flats: flats };
 };
 const setSelectedFlat = (flat) => {
@@ -22,4 +22,10 @@ const setClientList = (clientList) => {
 	return { type: SET_CLIENT_LIST, clientList: clientList };
 };
 
-export { setAllStreets, setHouses, setFlats, setSelectedFlat, setClientList };
+export {
+	setAllStreets,
+	setAllHouses,
+	setAllFlats,
+	setSelectedFlat,
+	setClientList,
+};

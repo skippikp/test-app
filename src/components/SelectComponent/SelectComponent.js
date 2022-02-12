@@ -5,7 +5,7 @@ const SelectComponent = ({
 	onOpen,
 	loading,
 	options,
-	onSelect,
+	onChange,
 	renderOptions,
 	label,
 	value,
@@ -24,10 +24,10 @@ const SelectComponent = ({
 			onOpen={onOpen}
 			value={value}
 			onChange={(event, value) => {
-				onSelect(value);
+				onChange(value);
 			}}
 			isOptionEqualToValue={(option, value) =>
-				option.label === value || option.label === value.label
+				option.label === value || option.label === value?.label
 			}
 			loading={loading}
 			options={options}

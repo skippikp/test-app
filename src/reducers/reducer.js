@@ -11,7 +11,7 @@ const initialState = {
 	streets: [],
 	houses: [],
 	flats: [],
-	selectedFlat: null,
+	selectedFlat: '',
 	clientList: [],
 };
 

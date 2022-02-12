@@ -4,8 +4,8 @@ import PersonInfo from '../person-info/PersonInfo';
 import { Stack } from '@mui/material';
 import SelectComponent from '../SelectComponent/SelectComponent';
 import {
-	setHouses,
-	setFlats,
+	setAllHouses,
+	setAllFlats,
 	setSelectedFlat,
 	setClientList,
 	setAllStreets,
@@ -19,9 +19,9 @@ const test = new TestApi();
 const Form = ({
 	streets,
 	houses,
-	setHouses,
+	setAllHouses,
 	flats,
-	setFlats,
+	setAllFlats,
 	selectedFlat,
 	setSelectedFlat,
 	clientList,
@@ -30,7 +30,7 @@ const Form = ({
 }) => {
 	const [street, setStreet] = useState('');
 	const [house, setHouse] = useState('');
-	const [flat, setFlat] = useState('');
+	const [flatNumber, setFlatNumber] = useState('');
 
 	const loadStreets = () => {
 		test.getStreets().then((data) => {
@@ -38,11 +38,18 @@ const Form = ({
 		});
 	};
 
-	const loadHouses = (streetName) => {
-		const street = streets.find((item) => item.name === streetName);
+	const loadHouses = (street) => {
 		if (street) {
 			test.getHouses(street.id).then((data) => {
-				setHouses(data);
+				setAllHouses(data);
+			});
+		}
+	};
+
+	const loadFlats = (house) => {
+		if (house) {
+			test.getFlats(house.id).then((data) => {
+				setAllFlats(data);
 			});
 		}
 	};
@@ -57,39 +64,41 @@ const Form = ({
 		}
 	};
 
-	const loadFlats = (houseName) => {
-		const selectedHouse = houses.find((item) => item.name === houseName);
-
-		if (selectedHouse) {
-			test.getFlats(selectedHouse.id).then((data) => {
-				setFlats(data);
-			});
-		}
-	};
-
-	const selectHouse = (house) => {
-		setHouse(house?.label);
-		setSelectedFlat(null);
-		setFlat('');
-		setClientList([]);
-	};
-
 	const selectStreet = (street) => {
-		setStreet(street?.label);
-		setSelectedFlat(null);
-		setFlat('');
+		if (street === null) {
+			setStreet('');
+		} else {
+			setStreet(street.label);
+		}
+		loadHouses(street);
+		setSelectedFlat('');
+		setFlatNumber('');
 		setHouse('');
 		setClientList([]);
 	};
 
-	const selectFlat = (flat) => {
-		const selectedFlat = flats?.find((item) => item.name === flat.label);
-		setSelectedFlat(selectedFlat);
-		setFlat(flat.label);
-		showAllPeople(selectedFlat?.id);
-		if (!selectedFlat) {
-			setClientList([]);
+	const selectHouse = (house) => {
+		if (house === null) {
+			setHouse('');
+		} else {
+			setHouse(house.label);
 		}
+		loadFlats(house);
+		setSelectedFlat('');
+		setFlatNumber('');
+		setClientList([]);
+	};
+
+	const selectFlat = (flat) => {
+		if (flat === null) {
+			setSelectedFlat('');
+			setFlatNumber('');
+			setClientList([]);
+			return;
+		}
+		setSelectedFlat(flat);
+		setFlatNumber(flat.label);
+		showAllPeople(flat.id);
 	};
 
 	const streetsSearchOptions = streets.map((item) => {
@@ -105,7 +114,9 @@ const Form = ({
 	});
 
 	const streetsLoadingIndicator = streets.length === 0;
+
 	const housesLoadingIndicator = houses.length === 0;
+
 	const flatsLoadingIndicator = flats.length === 0;
 
 	const flatsRenderOptions = (props, options) => {
@@ -125,31 +136,29 @@ const Form = ({
 					onOpen={loadStreets}
 					loading={streetsLoadingIndicator}
 					options={streetsSearchOptions}
-					onSelect={selectStreet}
+					onChange={selectStreet}
 					label={'Улица'}
 				/>
 				<SelectComponent
-					onOpen={() => loadHouses(street)}
 					loading={housesLoadingIndicator}
 					options={housesSearchOptions}
-					onSelect={selectHouse}
+					onChange={selectHouse}
 					label={'Дом'}
 					value={house}
 				/>
 				<SelectComponent
-					onOpen={() => loadFlats(house)}
 					loading={flatsLoadingIndicator}
 					options={flatsSearchOptions}
-					onSelect={selectFlat}
+					onChange={selectFlat}
 					renderOptions={flatsRenderOptions}
 					label={'Квартира'}
-					value={flat}
+					value={flatNumber}
 				/>
 			</Stack>
 			{selectedFlat ? (
 				<h4
 					style={{ fontWeight: 500, fontSize: 20 }}
-				>{`Жильцы ${street} ${house} квартира: ${selectedFlat.name} :`}</h4>
+				>{`Жильцы ${street} ${house} квартира: ${selectedFlat.label} :`}</h4>
 			) : null}
 			<div className="personInfo">
 				{clientList.map(({ name, phone, email, bindId }, id) => {
@@ -185,8 +194,8 @@ const mapStateToProps = ({
 };
 
 const mapDispatchToProps = {
-	setHouses,
-	setFlats,
+	setAllHouses,
+	setAllFlats,
 	setSelectedFlat,
 	setClientList,
 	setAllStreets,
