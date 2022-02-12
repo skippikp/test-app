@@ -1,6 +1,5 @@
 import React from 'react';
 import TestApi from '../../services/test-api';
-import PersonInfo from '../person-info/PersonInfo';
 import { Stack } from '@mui/material';
 import SelectComponent from '../SelectComponent/SelectComponent';
 import {
@@ -13,6 +12,7 @@ import {
 import { useState } from 'react';
 import { connect } from 'react-redux';
 import './Form.css';
+import PersonInfoCardContainer from '../person-info/PersonInfoContainer';
 
 const test = new TestApi();
 
@@ -163,7 +163,7 @@ const Form = ({
 			<div className="personInfo">
 				{clientList.map(({ name, phone, email, bindId }, id) => {
 					return (
-						<PersonInfo
+						<PersonInfoCardContainer
 							key={id}
 							bindId={bindId}
 							name={name}
