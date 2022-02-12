@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export default class TestApi {
+class TestApi {
 	_apiBase = 'https://dispex.org/api/vtest';
 
 	getResource = async (url) => {
@@ -36,14 +36,19 @@ export default class TestApi {
 			url: 'https://dispex.org/api/vtest/HousingStock/client',
 		};
 		const res = await axios(options);
+
+		if (res.status >= 400) {
+			throw new Error(`Could not fetch ${options.url}, received ${res.status}`);
+		}
+
 		return res;
 	};
 
 	getAllTenants = async (adressId) => {
-		const res = await axios.get(
-			'https://dispex.org/api/vtest/HousingStock/clients?addressId=' + adressId
+		const response = await this.getResource(
+			`/HousingStock/clients?addressId=${adressId}`
 		);
-		return res;
+		return response;
 	};
 
 	bindPerson = async (adressId, personId) => {
@@ -54,13 +59,26 @@ export default class TestApi {
 			url: 'https://dispex.org/api/vtest/HousingStock/bind_client',
 		};
 		const res = await axios(options);
+
+		if (res.status >= 400) {
+			throw new Error(`Could not fetch ${options.url}, received ${res.status}`);
+		}
+
 		return res;
 	};
 
 	removePerson = async (bindId) => {
-		const res = await axios.delete(
-			`https://dispex.org/api/vtest/HousingStock/bind_client/${bindId}`
-		);
+		const url = `${this._apiBase}/HousingStock/bind_client/${bindId}`;
+		const res = await axios.delete(url);
+
+		if (res.status >= 400) {
+			throw new Error(`Could not fetch ${url}, received ${res.status}`);
+		}
+
 		return res;
 	};
 }
+
+const test = new TestApi();
+
+export default test;

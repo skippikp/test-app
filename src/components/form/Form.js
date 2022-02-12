@@ -1,20 +1,20 @@
 import React from 'react';
-import TestApi from '../../services/test-api';
+import test from '../../services/test-api';
 import { Stack } from '@mui/material';
-import SelectComponent from '../SelectComponent/SelectComponent';
+import SelectComponent from '../select-component/SelectComponent';
 import {
 	setAllHouses,
 	setAllFlats,
 	setSelectedFlat,
 	setClientList,
 	setAllStreets,
+	setSelectedStreet,
+	setSelectedHouse,
 } from '../../actions/actions';
 import { useState } from 'react';
 import { connect } from 'react-redux';
 import './Form.css';
 import PersonInfoCardContainer from '../person-info/PersonInfoContainer';
-
-const test = new TestApi();
 
 const Form = ({
 	streets,
@@ -27,9 +27,11 @@ const Form = ({
 	clientList,
 	setClientList,
 	setAllStreets,
+	setSelectedStreet,
+	selectedStreet,
+	setSelectedHouse,
+	selectedHouse,
 }) => {
-	const [street, setStreet] = useState('');
-	const [house, setHouse] = useState('');
 	const [flatNumber, setFlatNumber] = useState('');
 
 	const loadStreets = () => {
@@ -57,31 +59,33 @@ const Form = ({
 	const showAllPeople = (adressId) => {
 		if (adressId) {
 			test.getAllTenants(adressId).then((res) => {
-				if (res.status === 200) {
-					setClientList(res.data);
-				} else setClientList([]);
+				if (res.status !== 200) {
+					setClientList([]);
+					return;
+				}
+				setClientList(res.data);
 			});
 		}
 	};
 
 	const selectStreet = (street) => {
 		if (street === null) {
-			setStreet('');
+			setSelectedStreet('');
 		} else {
-			setStreet(street.label);
+			setSelectedStreet(street.label);
 		}
 		loadHouses(street);
 		setSelectedFlat('');
 		setFlatNumber('');
-		setHouse('');
+		setSelectedHouse('');
 		setClientList([]);
 	};
 
 	const selectHouse = (house) => {
 		if (house === null) {
-			setHouse('');
+			setSelectedHouse('');
 		} else {
-			setHouse(house.label);
+			setSelectedHouse(house.label);
 		}
 		loadFlats(house);
 		setSelectedFlat('');
@@ -144,7 +148,7 @@ const Form = ({
 					options={housesSearchOptions}
 					onChange={selectHouse}
 					label={'Дом'}
-					value={house}
+					value={selectedHouse}
 				/>
 				<SelectComponent
 					loading={flatsLoadingIndicator}
@@ -156,23 +160,25 @@ const Form = ({
 				/>
 			</Stack>
 			{selectedFlat ? (
-				<h4
-					style={{ fontWeight: 500, fontSize: 20 }}
-				>{`Жильцы ${street} ${house} квартира: ${selectedFlat.label} :`}</h4>
+				<React.Fragment>
+					<h4
+						style={{ fontWeight: 500, fontSize: 20 }}
+					>{`Жильцы ${selectedStreet} ${selectedHouse} квартира: ${selectedFlat.label} :`}</h4>
+					<div className="personInfo">
+						{clientList.map(({ name, phone, email, bindId }, id) => {
+							return (
+								<PersonInfoCardContainer
+									key={id}
+									bindId={bindId}
+									name={name}
+									phone={phone}
+									email={email}
+								/>
+							);
+						})}
+					</div>
+				</React.Fragment>
 			) : null}
-			<div className="personInfo">
-				{clientList.map(({ name, phone, email, bindId }, id) => {
-					return (
-						<PersonInfoCardContainer
-							key={id}
-							bindId={bindId}
-							name={name}
-							phone={phone}
-							email={email}
-						/>
-					);
-				})}
-			</div>
 		</div>
 	);
 };
@@ -182,7 +188,9 @@ const mapStateToProps = ({
 	houses,
 	flats,
 	selectedFlat,
+	selectedStreet,
 	clientList,
+	selectedHouse,
 }) => {
 	return {
 		streets,
@@ -190,6 +198,8 @@ const mapStateToProps = ({
 		flats,
 		selectedFlat,
 		clientList,
+		selectedStreet,
+		selectedHouse,
 	};
 };
 
@@ -199,6 +209,8 @@ const mapDispatchToProps = {
 	setSelectedFlat,
 	setClientList,
 	setAllStreets,
+	setSelectedStreet,
+	setSelectedHouse,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Form);

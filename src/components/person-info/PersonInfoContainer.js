@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { setClientList } from '../../actions/actions';
-import TestApi from '../../services/test-api';
+import test from '../../services/test-api';
 import { connect } from 'react-redux';
-import PersonEditableCard from './PersonEditableCard/PersonEditableCard';
-import PersonEditDialog from './PersoEditDialog/PersonEditDialog';
-
-const test = new TestApi();
+import PersonEditableCard from './person-editable-card/PersonEditableCard';
+import PersonEditDialog from './person-edit-dialog/PersonEditDialog';
 
 const PersonInfoСardContainer = ({
 	name,
