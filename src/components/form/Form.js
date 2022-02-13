@@ -35,36 +35,46 @@ const Form = ({
 	const [flatNumber, setFlatNumber] = useState('');
 
 	const loadStreets = () => {
-		test.getStreets().then((data) => {
-			setAllStreets(data);
-		});
+		test
+			.getStreets()
+			.then((data) => {
+				setAllStreets(data);
+			})
+			.catch((err) => console.log('Не удается загрузить данные ' + err));
 	};
 
 	const loadHouses = (street) => {
 		if (street) {
-			test.getHouses(street.id).then((data) => {
-				setAllHouses(data);
-			});
+			test
+				.getHouses(street.id)
+				.then((data) => {
+					setAllHouses(data);
+				})
+				.catch((err) => console.log('Не удается загрузить данные ' + err));
 		}
 	};
 
 	const loadFlats = (house) => {
 		if (house) {
-			test.getFlats(house.id).then((data) => {
-				setAllFlats(data);
-			});
+			test
+				.getFlats(house.id)
+				.then((data) => {
+					setAllFlats(data);
+				})
+				.catch((err) => console.log('Не удается загрузить данные ' + err));
 		}
 	};
 
 	const showAllPeople = (adressId) => {
 		if (adressId) {
-			test.getAllTenants(adressId).then((res) => {
-				if (res.status !== 200) {
-					setClientList([]);
-					return;
-				}
-				setClientList(res.data);
-			});
+			test
+				.getAllTenants(adressId)
+				.then((res) => {
+					if (res.data !== '' && res.status === 200) {
+						setClientList(res.data);
+					} else setClientList([]);
+				})
+				.catch((err) => console.log('Не удается загрузить данные ' + err));
 		}
 	};
 
@@ -165,16 +175,8 @@ const Form = ({
 						style={{ fontWeight: 500, fontSize: 20 }}
 					>{`Жильцы ${selectedStreet} ${selectedHouse} квартира: ${selectedFlat.label} :`}</h4>
 					<div className="personInfo">
-						{clientList.map(({ name, phone, email, bindId }, id) => {
-							return (
-								<PersonInfoCardContainer
-									key={id}
-									bindId={bindId}
-									name={name}
-									phone={phone}
-									email={email}
-								/>
-							);
+						{clientList.map((person, id) => {
+							return <PersonInfoCardContainer key={id} person={person} />;
 						})}
 					</div>
 				</React.Fragment>

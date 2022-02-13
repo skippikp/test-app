@@ -1,15 +1,11 @@
 import React, { useState } from 'react';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
 import { setClientList } from '../../actions/actions';
 import test from '../../services/test-api';
 import { connect } from 'react-redux';
 import { Tooltip } from '@mui/material';
 import './AddPersonModal.css';
+import ModalForm from '../modal-form/ModalForm';
 
 const AddPersonModal = ({
 	selectedFlat,
@@ -50,10 +46,26 @@ const AddPersonModal = ({
 		});
 	};
 
+	const bindPerson = (adressId, personId) => {
+		test
+			.bindPerson(adressId, personId)
+			.then(() => {
+				test.getAllTenants(selectedFlat.id).then((res) => {
+					if (res.data !== '' && res.status === 200) {
+						setClientList(res.data);
+					} else setClientList([]);
+				});
+			})
+			.catch((err) => console.log('Не удается загрузить данные ' + err));
+	};
+
 	const submitPerson = (person) => {
-		test.postPerson(person).then((result) => {
-			bindPerson(selectedFlat.id, result.data.id);
-		});
+		test
+			.postPerson(person)
+			.then((result) => {
+				bindPerson(selectedFlat.id, result.data.id);
+			})
+			.catch((err) => console.log('Не удается загрузить данные ' + err));
 		setPerson({
 			Id: 0,
 			Name: '',
@@ -62,18 +74,6 @@ const AddPersonModal = ({
 			BindId: 0,
 		});
 		setOpen(false);
-	};
-
-	const bindPerson = (adressId, personId) => {
-		test.bindPerson(adressId, personId).then(() => {
-			test.getAllTenants(selectedFlat.id).then((res) => {
-				if (res.status !== 200) {
-					setClientList([]);
-					return;
-				}
-				setClientList(res.data);
-			});
-		});
 	};
 
 	const handleClickOpen = () => {
@@ -89,15 +89,50 @@ const AddPersonModal = ({
 			Email: '',
 			BindId: 0,
 		});
-		test.getAllTenants(selectedFlat.id).then((res) => {
-			setClientList(res.data);
-		});
+		test
+			.getAllTenants(selectedFlat.id)
+			.then((res) => {
+				if (res.data !== '' && res.status === 200) {
+					setClientList(res.data);
+				} else setClientList([]);
+			})
+			.catch((err) => console.log('Не удается загрузить данные ' + err));
 	};
 
 	const validPhone = (phone) => {
+		// eslint-disable-next-line no-useless-escape
 		const phoneRegExp = /^((8|\+7)[\- ]?)?(\(?\d{3,4}\)?[\- ]?)?[\d\- ]{5,10}$/;
 		return phoneRegExp.test(phone);
 	};
+
+	const addPersonModalInputsProps = [
+		{
+			id: 'outlined-name',
+			label: 'Ф.И.О',
+			sx: { m: 1, width: '25ch' },
+			onChange: handleChangeName,
+			value: person.Name,
+		},
+		{
+			id: 'outlined-basic',
+			label: 'Телефон',
+			type: 'tel',
+			required: true,
+			variant: 'outlined',
+			sx: { m: 1, width: '25ch' },
+			error: !validPhone(person.Phone),
+			value: person.Phone,
+			onChange: handleChangePhone,
+		},
+		{
+			id: 'outlined-basic',
+			label: 'Email',
+			variant: 'outlined',
+			sx: { m: 1, width: '25ch' },
+			value: person.Email,
+			onChange: handleChangeEmail,
+		},
+	];
 
 	return (
 		<div className="person_modal">
@@ -118,47 +153,15 @@ const AddPersonModal = ({
 					Добавить жильца
 				</Button>
 			)}
-			<Dialog open={open} onClose={handleClose}>
-				<DialogTitle>Добавить жильца</DialogTitle>
-				<DialogContent>
-					<TextField
-						id="outlined-name"
-						label="Ф.И.О"
-						sx={{ m: 1, width: '25ch' }}
-						onChange={handleChangeName}
-						value={person.Name}
-					/>
-					<TextField
-						id="outlined-basic"
-						label="Телефон"
-						type="tel"
-						required
-						pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
-						variant="outlined"
-						sx={{ m: 1, width: '25ch' }}
-						error={!validPhone(person.Phone)}
-						value={person.Phone}
-						onChange={handleChangePhone}
-					/>
-					<TextField
-						id="outlined-basic"
-						label="Email"
-						variant="outlined"
-						sx={{ m: 1, width: '25ch' }}
-						value={person.Email}
-						onChange={handleChangeEmail}
-					/>
-				</DialogContent>
-				<DialogActions>
-					<Button onClick={handleClose}>Cancel</Button>
-					<Button
-						disabled={!person.Phone || !validPhone(person.Phone)}
-						onClick={() => submitPerson(person)}
-					>
-						Добавить
-					</Button>
-				</DialogActions>
-			</Dialog>
+			<ModalForm
+				open={open}
+				onClose={handleClose}
+				title={'Добавить жильца'}
+				disabled={!person.Phone || !validPhone(person.Phone)}
+				handleSubmit={() => submitPerson(person)}
+				submitButtonName={'Добавить'}
+				inputs={addPersonModalInputsProps}
+			/>
 		</div>
 	);
 };

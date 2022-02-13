@@ -3,40 +3,27 @@ import { setClientList } from '../../actions/actions';
 import test from '../../services/test-api';
 import { connect } from 'react-redux';
 import PersonEditableCard from './person-editable-card/PersonEditableCard';
-import PersonEditDialog from './person-edit-dialog/PersonEditDialog';
+import ModalForm from '../modal-form/ModalForm';
 
-const PersonInfoСardContainer = ({
-	name,
-	phone,
-	email,
-	bindId,
-	selectedFlat,
-	setClientList,
-}) => {
-	const initialState = {
-		Id: 0,
-		Name: name,
-		Phone: phone,
-		Email: email,
-		BindId: 0,
-	};
+const PersonInfoСardContainer = ({ person, selectedFlat, setClientList }) => {
+	const { name, phone, email, bindId } = person;
 	const [open, setOpen] = useState(false);
-	const [person, setPerson] = useState(initialState);
+	const [editedPerson, setEditedPerson] = useState(person);
 
 	const handleChangeName = (event) => {
-		setPerson((state) => {
+		setEditedPerson((state) => {
 			return {
 				...state,
-				Name: event.target.value,
+				name: event.target.value,
 			};
 		});
 	};
 
 	const handleChangeEmail = (event) => {
-		setPerson((state) => {
+		setEditedPerson((state) => {
 			return {
 				...state,
-				Email: event.target.value,
+				email: event.target.value,
 			};
 		});
 	};
@@ -44,19 +31,23 @@ const PersonInfoСardContainer = ({
 	const handleClose = () => {
 		setOpen(false);
 		test.getAllTenants(selectedFlat.id).then((res) => {
-			setClientList(res.data);
+			if (res.data !== '' && res.status === 200) {
+				setClientList(res.data);
+			} else setClientList([]);
 		});
 	};
 
 	const handleEdit = () => {
 		setOpen(true);
-		setPerson(initialState);
+		setEditedPerson(person);
 	};
 
 	const submitPerson = (person) => {
 		test.postPerson(person).then(() => {
 			test.getAllTenants(selectedFlat.id).then((res) => {
-				setClientList(res.data);
+				if (res.data !== '' && res.status === 200) {
+					setClientList(res.data);
+				} else setClientList([]);
 			});
 		});
 		setOpen(false);
@@ -65,12 +56,30 @@ const PersonInfoСardContainer = ({
 	const removePerson = (personId) => {
 		test.removePerson(personId).then(() => {
 			test.getAllTenants(selectedFlat.id).then((res) => {
-				if (res.data !== '') {
+				if (res.data !== '' && res.status === 200) {
 					setClientList(res.data);
 				} else setClientList([]);
 			});
 		});
 	};
+
+	const editPersonInputsProps = [
+		{
+			id: 'outlined-name',
+			label: 'Имя',
+			sx: { m: 1, width: '25ch' },
+			onChange: handleChangeName,
+			value: editedPerson.name,
+		},
+		{
+			id: 'outlined-basic',
+			label: 'Email',
+			sx: { m: 1, width: '25ch' },
+			variant: 'outlined',
+			value: editedPerson.email,
+			onChange: handleChangeEmail,
+		},
+	];
 
 	return (
 		<div className="personInfo">
@@ -81,13 +90,14 @@ const PersonInfoСardContainer = ({
 				handleEdit={handleEdit}
 				handleRemove={() => removePerson(bindId)}
 			/>
-			<PersonEditDialog
-				person={person}
+			<ModalForm
 				open={open}
-				handleClose={handleClose}
-				handleChangeName={handleChangeName}
-				handleChangeEmail={handleChangeEmail}
-				handleSubmit={submitPerson}
+				onClose={handleClose}
+				title={'Изменить данные жильца'}
+				disabled={false}
+				submitButtonName={'Изменить'}
+				handleSubmit={() => submitPerson(editedPerson)}
+				inputs={editPersonInputsProps}
 			/>
 		</div>
 	);
