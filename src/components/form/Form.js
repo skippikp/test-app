@@ -59,7 +59,8 @@ const Form = ({
 			test
 				.getFlats(house.id)
 				.then((data) => {
-					setAllFlats(data);
+					const flatsOnly = data.filter((item) => item.typeName === 'Квартира');
+					setAllFlats(flatsOnly);
 				})
 				.catch((err) => console.log('Не удается загрузить данные ' + err));
 		}
@@ -124,47 +125,28 @@ const Form = ({
 	});
 
 	const flatsSearchOptions = flats.map((item) => {
-		return { label: item.name, typeName: item.typeName, id: item.id };
+		return { label: item.name, id: item.id };
 	});
-
-	const streetsLoadingIndicator = streets.length === 0;
-
-	const housesLoadingIndicator = houses.length === 0;
-
-	const flatsLoadingIndicator = flats.length === 0;
-
-	const flatsRenderOptions = (props, options) => {
-		if (options.typeName === 'Квартира') {
-			return (
-				<li {...props} key={options.id}>
-					{options.label}
-				</li>
-			);
-		}
-	};
 
 	return (
 		<div className="form">
 			<Stack direction="row" spacing={2}>
 				<SelectComponent
 					onOpen={loadStreets}
-					loading={streetsLoadingIndicator}
+					loading={streets.length === 0}
 					options={streetsSearchOptions}
 					onChange={selectStreet}
 					label={'Улица'}
 				/>
 				<SelectComponent
-					loading={housesLoadingIndicator}
 					options={housesSearchOptions}
 					onChange={selectHouse}
 					label={'Дом'}
 					value={selectedHouse}
 				/>
 				<SelectComponent
-					loading={flatsLoadingIndicator}
 					options={flatsSearchOptions}
 					onChange={selectFlat}
-					renderOptions={flatsRenderOptions}
 					label={'Квартира'}
 					value={flatNumber}
 				/>

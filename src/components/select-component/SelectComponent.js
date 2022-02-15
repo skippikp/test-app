@@ -32,7 +32,7 @@ const SelectComponent = ({
 			loading={loading}
 			options={options}
 			sx={{ width: 300 }}
-			renderOption={renderOptions ? renderOptions : componentRenderOptions}
+			renderOption={componentRenderOptions}
 			renderInput={(params) => <TextField {...params} label={label} />}
 		/>
 	);
