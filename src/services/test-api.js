@@ -28,6 +28,11 @@ class TestApi {
 		return res.data;
 	};
 
+	getPersonByPhone = async (phone) => {
+		const res = await this.getResource(`/HousingStock/client?phone=${phone}`);
+		return res.data;
+	};
+
 	postPerson = async (person) => {
 		const options = {
 			method: 'POST',

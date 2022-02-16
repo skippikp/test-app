@@ -28,6 +28,15 @@ const PersonInfoСardContainer = ({ person, selectedFlat, setClientList }) => {
 		});
 	};
 
+	const handleChangePhone = (event) => {
+		setEditedPerson((state) => {
+			return {
+				...state,
+				phone: event.target.value,
+			};
+		});
+	};
+
 	const handleClose = () => {
 		setOpen(false);
 		test.getAllTenants(selectedFlat.id).then((res) => {
@@ -42,8 +51,13 @@ const PersonInfoСardContainer = ({ person, selectedFlat, setClientList }) => {
 		setEditedPerson(person);
 	};
 
-	const submitPerson = (person) => {
-		test.postPerson(person).then(() => {
+	const submitPerson = () => {
+		test.postPerson(editedPerson).then((res) => {
+			if (res.data.id !== editedPerson.id) {
+				test.bindPerson(selectedFlat.id, res.data.id).then(() => {
+					removePerson(person.bindId);
+				});
+			}
 			test.getAllTenants(selectedFlat.id).then((res) => {
 				if (res.data !== '' && res.status === 200) {
 					setClientList(res.data);
@@ -63,6 +77,12 @@ const PersonInfoСardContainer = ({ person, selectedFlat, setClientList }) => {
 		});
 	};
 
+	const validPhone = (phone) => {
+		// eslint-disable-next-line no-useless-escape
+		const phoneRegExp = /^((8|\+7)[\- ]?)?(\(?\d{3,4}\)?[\- ]?)?[\d\- ]{5,10}$/;
+		return phoneRegExp.test(phone);
+	};
+
 	const editPersonInputsProps = [
 		{
 			id: 'outlined-name',
@@ -70,6 +90,17 @@ const PersonInfoСardContainer = ({ person, selectedFlat, setClientList }) => {
 			sx: { m: 1, width: '25ch' },
 			onChange: handleChangeName,
 			value: editedPerson.name,
+		},
+		{
+			id: 'outlined-basic',
+			label: 'Телефон',
+			type: 'tel',
+			required: true,
+			variant: 'outlined',
+			sx: { m: 1, width: '25ch' },
+			error: !validPhone(editedPerson.phone),
+			value: editedPerson.phone,
+			onChange: handleChangePhone,
 		},
 		{
 			id: 'outlined-basic',
@@ -94,7 +125,7 @@ const PersonInfoСardContainer = ({ person, selectedFlat, setClientList }) => {
 				open={open}
 				onClose={handleClose}
 				title={'Изменить данные жильца'}
-				disabled={false}
+				disabled={!editedPerson.phone || !validPhone(editedPerson.phone)}
 				submitButtonName={'Изменить'}
 				handleSubmit={() => submitPerson(editedPerson)}
 				inputs={editPersonInputsProps}

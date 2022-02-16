@@ -21,6 +21,7 @@ const AddPersonModal = ({
 		Email: '',
 		BindId: 0,
 	});
+	const [numberIsUsed, setNumberIsUsed] = useState(false);
 
 	const handleChangeName = (event) => {
 		setPerson((state) => {
@@ -32,6 +33,13 @@ const AddPersonModal = ({
 	};
 
 	const handleChangePhone = (event) => {
+		test.getPersonByPhone(event.target.value).then((res) => {
+			if (res.id) {
+				setNumberIsUsed(true);
+				return;
+			}
+			setNumberIsUsed(false);
+		});
 		setPerson((state) => {
 			return { ...state, Phone: event.target.value };
 		});
@@ -73,6 +81,7 @@ const AddPersonModal = ({
 			Email: '',
 			BindId: 0,
 		});
+		setNumberIsUsed(false);
 		setOpen(false);
 	};
 
@@ -82,6 +91,7 @@ const AddPersonModal = ({
 
 	const handleClose = () => {
 		setOpen(false);
+		setNumberIsUsed(false);
 		setPerson({
 			Id: 0,
 			Name: '',
@@ -105,6 +115,8 @@ const AddPersonModal = ({
 		return phoneRegExp.test(phone);
 	};
 
+	const error = !validPhone(person.Phone) || numberIsUsed;
+
 	const addPersonModalInputsProps = [
 		{
 			id: 'outlined-name',
@@ -120,7 +132,12 @@ const AddPersonModal = ({
 			required: true,
 			variant: 'outlined',
 			sx: { m: 1, width: '25ch' },
-			error: !validPhone(person.Phone),
+			error: error,
+			helperText: numberIsUsed
+				? 'Пользователь с данным номером уже существует.'
+				: error
+				? 'Некорректный номер'
+				: false,
 			value: person.Phone,
 			onChange: handleChangePhone,
 		},
@@ -157,7 +174,7 @@ const AddPersonModal = ({
 				open={open}
 				onClose={handleClose}
 				title={'Добавить жильца'}
-				disabled={!person.Phone || !validPhone(person.Phone)}
+				disabled={!person.Phone || error}
 				handleSubmit={() => submitPerson(person)}
 				submitButtonName={'Добавить'}
 				inputs={addPersonModalInputsProps}
