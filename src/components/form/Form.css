@@ -1,10 +1,21 @@
 .form {
   margin-top: 20px;
-  max-width: 1000px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .personInfo {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+@media screen and (max-width: 600px) {
+  .personInfo{
+    justify-content: center;
+  }
 }

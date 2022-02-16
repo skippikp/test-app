@@ -6,7 +6,6 @@ const SelectComponent = ({
 	loading,
 	options,
 	onChange,
-	renderOptions,
 	label,
 	value,
 }) => {
@@ -31,7 +30,15 @@ const SelectComponent = ({
 			}
 			loading={loading}
 			options={options}
-			sx={{ width: 300 }}
+			sx={{
+				width: {
+					xs: 100,
+					sm: 150,
+					md: 200,
+					lg: 250,
+					xl: 300,
+				},
+			}}
 			renderOption={componentRenderOptions}
 			renderInput={(params) => <TextField {...params} label={label} />}
 		/>

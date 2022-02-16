@@ -3,3 +3,9 @@
   justify-content: center;
   gap: 50px;
 }
+
+@media screen and (max-width: 380px) {
+  .app{
+    flex-direction: column;
+  }
+}

@@ -13,7 +13,7 @@ const PersonEditableCard = ({
 	handleRemove,
 }) => {
 	return (
-		<Card sx={{ minWidth: 275, maxWidth: 500, minHeight: 200 }}>
+		<Card sx={{ minWidth: 150, maxWidth: 500, minHeight: 200 }}>
 			<CardContent>
 				<Typography sx={{ fontSize: 20 }} color="text.secondary" gutterBottom>
 					{name}

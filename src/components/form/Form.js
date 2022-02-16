@@ -130,7 +130,11 @@ const Form = ({
 
 	return (
 		<div className="form">
-			<Stack direction="row" spacing={2}>
+			<Stack
+				direction={{ xs: 'column', sm: 'row' }}
+				alignItems="center"
+				spacing={2}
+			>
 				<SelectComponent
 					onOpen={loadStreets}
 					loading={streets.length === 0}
